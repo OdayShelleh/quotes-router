@@ -1,16 +1,32 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import classes from "./NewCommentForm.module.css";
+import useHttp from "../../hooks/useHttp";
+import { addComment } from "../../lib/api";
 
 const NewCommentForm = (props) => {
   const commentTextRef = useRef();
+  const { sendRequest, status, error } = useHttp(addComment);
+
+  const { onAddedComment, quoteId } = props;
+
+  useEffect(() => {
+    if (status === "completed" && !error) onAddedComment();
+  }, [status, error, onAddedComment]);
 
   const submitFormHandler = (event) => {
     event.preventDefault();
 
+    const commentText = commentTextRef.current.value;
     // optional: Could validate here
 
     // send comment to server
+    sendRequest({
+      commentData: {
+        text: commentText,
+      },
+      quoteId: quoteId,
+    });
   };
 
   return (
